@@ -278,6 +278,7 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:
   <footer>
     <p><b>Method.</b> 2025 light-vehicle production for ~20 OEM groups (≈85% of the market) plus regional residuals, rounded approximations to be replaced with OICA / S&amp;P data. Calipers per car from regional rear-drum shares. Each OEM-region row is split across suppliers; suppliers are grouped by controlling owner (CBI is counted inside Astemo). OE light vehicles only: no trucks, no aftermarket.</p>
     <p><b>Base case.</b> ≈335M calipers a year for ≈92M light vehicles (≈3.6 per vehicle, below 4 because of rear drum brakes). All shares are by units.</p>
+    <p id="xcheck"><b>Market-size cross-check.</b></p>
     <p>Sources for confirmed links: ADVICS, The Brake Report, MarkLines, Gasgoo, Bamboo Works, Drive Tesla Canada, Vehicle Dynamics International. Author’s model; the same data as the Excel workbook.</p>
   </footer>
 </div>
@@ -363,6 +364,8 @@ function render(){
   document.getElementById("k-units").textContent = Math.round(W.units) + "M";
   const cars = D.rows.reduce((a,r) => a + r.prod, 0);
   document.getElementById("k-value").textContent = (W.units / cars).toFixed(2);
+  const BLENDED_EUR = 34; // one illustrative blended price per caliper, used only for this cross-check
+  document.getElementById("xcheck").innerHTML = `<b>Market-size cross-check.</b> ${Math.round(W.units)}M calipers × ≈€${BLENDED_EUR} illustrative blended price ≈ €${(W.units*BLENDED_EUR/1000).toFixed(1)}bn, inside the $10–16bn range of published market estimates, which were not used as inputs. Rough check of the total only; shares are not value-weighted.`;
   document.getElementById("k-cn").textContent = pct(W.groups.Chinese);
   document.getElementById("k-cn-s").textContent = "Range " + pct(Math.min(lo.World.groups.Chinese, hi.World.groups.Chinese)) + "–" + pct(Math.max(lo.World.groups.Chinese, hi.World.groups.Chinese)) + " (low–high sourcing), by units";
   const top = W.sup.find(([s]) => !s.startsWith("Other"));

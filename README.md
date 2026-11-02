@@ -9,6 +9,7 @@ Interactive bottom-up model of the OE brake caliper market (light vehicles): est
 - Calipers per car = 4 − 2 × rear-drum share (cars with rear drum brakes have calipers only at the front).
 - Each OEM-region row is split across caliper suppliers; suppliers are grouped by controlling owner (e.g. BWI = Chinese, owned by Luxshare; CBI counted inside Astemo).
 - All shares are by units (calipers), not value.
+- Market-size cross-check only: total calipers × one illustrative blended price (≈€34) ≈ €11bn, inside published $10–16bn estimates (not used as inputs).
 
 ## Scenario levers
 - Sourcing assumptions at the least documented Chinese OEMs (low / base / high).
