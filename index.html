@@ -486,11 +486,11 @@ function renderOutlook(){
     const r = outlook(y, cu), o = r.W, tot = o.hi+o.hc+o.ei+o.ec, emb = o.ei+o.ec;
     return stack(o, y, Math.round(tot) + "M calipers");
   }).join("");
-  let th = "<thead><tr><th>Year</th><th>EV share of new cars</th><th>EMB share of new cars</th><th>EMB share of calipers</th><th>Chinese share of EMB</th><th>Chinese share of all calipers</th></tr></thead><tbody>";
+  let th = "<thead><tr><th>Year</th><th>EV share of new cars</th><th>EMB share of new cars</th><th>Chinese share of EMB</th><th>Chinese share of all calipers</th></tr></thead><tbody>";
   for (const y of YEARS){
     const r = outlook(y, cu), o = r.W, tot = o.hi+o.hc+o.ei+o.ec, emb = o.ei+o.ec;
     const evg = REG.reduce((a,reg) => a + CARS[reg]*ost[y].ev[reg], 0) / REG.reduce((a,reg) => a + CARS[reg], 0);
-    th += `<tr${y===oyear?' style="font-weight:700"':''}><td>${y}</td><td>${pct(evg)}</td><td>${pct(r.embGlobal)}</td><td>${pct(emb/tot)}</td><td>${emb>0?pct(o.ec/emb):"–"}</td><td>${pct((o.hc+o.ec)/tot)}</td></tr>`;
+    th += `<tr${y===oyear?' style="font-weight:700"':''}><td>${y}</td><td>${pct(evg)}</td><td>${pct(r.embGlobal)}</td><td>${emb>0?pct(o.ec/emb):"–"}</td><td>${pct((o.hc+o.ec)/tot)}</td></tr>`;
   }
   document.getElementById("o-table").innerHTML = th + "</tbody>";
   // controls
