@@ -14,14 +14,11 @@ Interactive bottom-up model of the OE brake caliper market (light vehicles): est
 ## Scenario levers
 - Sourcing assumptions at the least documented Chinese OEMs (low / base / high).
 - Chinese brands' share of European production and how much of it is sourced from Chinese suppliers.
-- BWI classified by owner (Chinese) or origin (Western).
-- Rear-drum share by region.
 
 ## Outlook (2026 → 2030 → 2036)
 Scenario explorer, not a forecast. EMB cars in China = new vehicles × EMB share of new cars (the unit of the published anchor, capped at the EV share); outside China = new vehicles × EV share × EMB take-rate among EVs. EMB calipers are split between incumbent (Western, Japanese, Korean) and Chinese suppliers.
 - Sourced anchors: EV share (IEA Global EV Outlook 2026, BNEF EVO 2026, EV Volumes); EMB in China <1% of new cars in 2026 and ≈15% by 2030 (Donghai Securities forecast).
 - Assumptions (marked on the page): EMB take-rate outside China, Chinese suppliers' share of EMB, 2036 EMB take-rates, EV shares for Japan, Korea and Rest of World.
-- Chinese suppliers' share of EMB outside China is calculated, not assumed: in each region, Chinese brands' share of the EVs built there × the Chinese-supplier share they use (same as in China) + the rest × the share of EMB that incumbent OEMs buy from Chinese suppliers (the "Chinese system win" lever).
 - Vehicle volumes held at 2025 levels; hydraulic supplier shares from today's model.
 - Output: world caliper units by year split into hydraulic / EMB and incumbent / Chinese suppliers, plus a summary table.
 

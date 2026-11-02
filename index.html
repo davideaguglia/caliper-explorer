@@ -162,20 +162,6 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:
         <p class="hint">Chinese share goes to Bethel, BWI and other Chinese suppliers; the rest to ZF and Aumovio.</p>
       </div>
 
-      <div class="lever">
-        <span class="lbl" id="lbl-bwi">Classify BWI as</span>
-        <div class="seg" role="group" aria-labelledby="lbl-bwi">
-          <button type="button" data-bwi="owner">Chinese (owner)</button>
-          <button type="button" data-bwi="origin">Western (origin)</button>
-        </div>
-        <p class="hint">BWI is the ex-Delphi brake business, 100% owned by Luxshare since Oct 2026.</p>
-      </div>
-
-      <details class="lever">
-        <summary>Rear-drum share by region</summary>
-        <p class="hint" style="margin-top:6px">Cars with rear drums have 2 calipers instead of 4: calipers per car = 4 − 2 × drum share.</p>
-        <div class="drums" id="drums"></div>
-      </details>
     </aside>
 
     <main class="panel" style="gap:24px">
@@ -246,16 +232,8 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:
         <div class="lever">
           <label for="o-cncn">Chinese suppliers’ share of EMB: in China <span class="asm">assumption</span></label>
           <div class="row"><input id="o-cncn" type="range" min="0" max="100" step="5"><output id="o-cncn-o" for="o-cncn"></output></div>
-          <p class="hint">Chinese brands building cars abroad are assumed to source EMB from Chinese suppliers at this same share.</p>
-        </div>
-        <div class="lever">
-          <span class="lbl">Outside China: who builds the EVs <span class="asm">assumption</span></span>
-          <p class="hint">Chinese brands’ share of the EVs built in each region. Imports built in China are counted under China. Context: Chinese brands ≈10% of EU registrations today, mostly imports (T&amp;E / Rhodium); first local plants in Hungary and Spain. US tariffs and connected-vehicle rules keep them largely out of North America.</p>
-          <div class="drums" id="o-brand"></div>
-          <label for="o-buy" style="margin-top:6px">Incumbent OEMs’ EMB bought from Chinese suppliers <span class="asm">assumption</span></label>
-          <div class="row"><input id="o-buy" type="range" min="0" max="100" step="5"><output id="o-buy-o" for="o-buy"></output></div>
-          <p class="hint">VW, Stellantis, Toyota, GM and other non-Chinese OEMs. Raising this is the “Chinese system win” scenario.</p>
-          <p class="note" id="o-derived"></p>
+          <label for="o-cnex">Chinese suppliers’ share of EMB: outside China <span class="asm">assumption</span></label>
+          <div class="row"><input id="o-cnex" type="range" min="0" max="100" step="5"><output id="o-cnex-o" for="o-cnex"></output></div>
         </div>
         <details class="lever">
           <summary>EV share of new vehicles by region <span class="src">sourced</span></summary>
@@ -278,13 +256,13 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:
           <h3 style="margin-bottom:8px">Summary by year</h3>
           <div class="tablewrap"><table id="o-table"></table></div>
         </div>
-        <p class="note">“Incumbents” = Western, Japanese and Korean suppliers. Chinese = Chinese-owned (BWI follows the classification lever above).</p>
+        <p class="note">“Incumbents” = Western, Japanese and Korean suppliers. Chinese = Chinese-owned (incl. BWI, owned by Luxshare).</p>
       </div>
     </div>
   </section>
 
   <footer>
-    <p><b>Method.</b> 2025 light-vehicle production for ~20 OEM groups (≈85% of the market) plus regional residuals, rounded approximations to be replaced with OICA / S&amp;P data. Calipers per car from regional rear-drum shares. Each OEM-region row is split across suppliers; suppliers are grouped by controlling owner (CBI is counted inside Astemo). OE light vehicles only: no trucks, no aftermarket.</p>
+    <p><b>Method.</b> 2025 light-vehicle production for ~20 OEM groups (≈85% of the market) plus regional residuals, rounded approximations to be replaced with OICA / S&amp;P data. Calipers per car from regional rear-drum shares. Each OEM-region row is split across suppliers; suppliers are grouped by controlling owner (BWI counted as Chinese, owned by Luxshare since Oct 2026; CBI counted inside Astemo). OE light vehicles only: no trucks, no aftermarket.</p>
     <p><b>Base case.</b> ≈335M calipers a year for ≈92M light vehicles (≈3.6 per vehicle, below 4 because of rear drum brakes). All shares are by units.</p>
     <p id="xcheck"><b>Market-size cross-check.</b></p>
     <p>Sources for confirmed links: ADVICS, The Brake Report, MarkLines, Gasgoo, Bamboo Works, Drive Tesla Canada, Vehicle Dynamics International. Author’s model; the same data as the Excel workbook.</p>
@@ -426,43 +404,27 @@ function render(){
 
   // control states
   document.querySelectorAll("[data-src]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.src === st.src)));
-  document.querySelectorAll("[data-bwi]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.bwi === st.bwi)));
   document.getElementById("eu-share").value = Math.round(st.euShare*100);
   document.getElementById("eu-share-o").textContent = Math.round(st.euShare*100) + "%";
   document.getElementById("eu-local").value = Math.round(st.euLocal*100);
   document.getElementById("eu-local-o").textContent = Math.round(st.euLocal*100) + "%";
-  for (const reg of REG){
-    const i = document.getElementById("drum-" + reg.replace(/\W+/g,"-"));
-    i.value = Math.round(st.drum[reg]*100);
-    document.getElementById("drum-" + reg.replace(/\W+/g,"-") + "-o").textContent = Math.round(st.drum[reg]*100) + "%";
-  }
 }
 
-// build drum sliders and region select
-const drums = document.getElementById("drums");
-for (const r of D.regions){
-  const id = "drum-" + r.name.replace(/\W+/g,"-");
-  const row = document.createElement("div"); row.className = "row";
-  row.innerHTML = `<label for="${id}" style="font-size:13px;min-width:110px;font-weight:400">${r.name}</label><input id="${id}" type="range" min="0" max="70" step="1"><output id="${id}-o" for="${id}"></output>`;
-  drums.appendChild(row);
-  row.querySelector("input").addEventListener("input", e => { st.drum[r.name] = e.target.value/100; render(); });
-}
+// region select
 const sel = document.getElementById("rank-region");
 for (const reg of ["World", ...REG]){ const o = document.createElement("option"); o.value = reg; o.textContent = reg; sel.appendChild(o); }
 sel.addEventListener("change", e => { rankRegion = e.target.value; render(); });
 document.querySelectorAll("[data-src]").forEach(b => b.addEventListener("click", () => { st.src = b.dataset.src; render(); }));
-document.querySelectorAll("[data-bwi]").forEach(b => b.addEventListener("click", () => { st.bwi = b.dataset.bwi; render(); }));
 document.getElementById("eu-share").addEventListener("input", e => { st.euShare = e.target.value/100; render(); });
 document.getElementById("eu-local").addEventListener("input", e => { st.euLocal = e.target.value/100; render(); });
 document.getElementById("reset").addEventListener("click", () => { st = JSON.parse(JSON.stringify(BASE)); render(); });
 
 // ---------------- Outlook ----------------
 const YEARS = ["2026","2030","2036"];
-const OUTSIDE = ["Europe","North America","Japan","Korea","Rest of World"];
 const OUT_BASE = {
-  "2026": {ev:{"China":0.60,"Europe":0.28,"North America":0.10,"Japan":0.05,"Korea":0.12,"Rest of World":0.08}, embCn:0.008, embEx:0.005, cnCn:0.80, buy:0.10, brand:{"Europe":0.02,"North America":0.01,"Japan":0.02,"Korea":0.02,"Rest of World":0.30}},
-  "2030": {ev:{"China":0.76,"Europe":0.55,"North America":0.18,"Japan":0.15,"Korea":0.30,"Rest of World":0.20}, embCn:0.15,  embEx:0.05,  cnCn:0.80, buy:0.15, brand:{"Europe":0.10,"North America":0.02,"Japan":0.02,"Korea":0.03,"Rest of World":0.40}},
-  "2036": {ev:{"China":0.88,"Europe":0.78,"North America":0.30,"Japan":0.30,"Korea":0.50,"Rest of World":0.28}, embCn:0.35,  embEx:0.20,  cnCn:0.85, buy:0.20, brand:{"Europe":0.20,"North America":0.03,"Japan":0.02,"Korea":0.03,"Rest of World":0.45}}
+  "2026": {ev:{"China":0.60,"Europe":0.28,"North America":0.10,"Japan":0.05,"Korea":0.12,"Rest of World":0.08}, embCn:0.008, embEx:0.005, cnCn:0.80, cnEx:0.15},
+  "2030": {ev:{"China":0.76,"Europe":0.55,"North America":0.18,"Japan":0.15,"Korea":0.30,"Rest of World":0.20}, embCn:0.15,  embEx:0.05,  cnCn:0.80, cnEx:0.20},
+  "2036": {ev:{"China":0.88,"Europe":0.78,"North America":0.30,"Japan":0.30,"Korea":0.50,"Rest of World":0.28}, embCn:0.35,  embEx:0.20,  cnCn:0.85, cnEx:0.35}
 };
 let ost = JSON.parse(JSON.stringify(OUT_BASE));
 let oyear = "2030";
@@ -470,17 +432,16 @@ const CARS = {}; for (const r of D.rows) CARS[r.region] = (CARS[r.region]||0) + 
 
 function outlook(y, cu){
   // cu: compute(units) for today's hydraulic structure
-  const s = ost[y]; const W = {hi:0,hc:0,ei:0,ec:0}; const det = {}; let embCars = 0, cars = 0;
+  const s = ost[y]; const W = {hi:0,hc:0,ei:0,ec:0}; let embCars = 0, cars = 0;
   for (const reg of REG){
     const c = CARS[reg], cpc = cu[reg].units / c, isCn = reg === "China";
     const e = (isCn ? Math.min(s.embCn, s.ev[reg]) : Math.min(1, s.ev[reg] * s.embEx)) * c;
     const hyd = (c - e) * cpc, emb = e * 4, hcn = cu[reg].groups.Chinese;
-    const ecn = isCn ? s.cnCn : s.brand[reg] * s.cnCn + (1 - s.brand[reg]) * s.buy;
-    det[reg] = {emb, ecn};
+    const ecn = isCn ? s.cnCn : s.cnEx;
     W.hi += hyd*(1-hcn); W.hc += hyd*hcn; W.ei += emb*(1-ecn); W.ec += emb*ecn;
     embCars += e; cars += c;
   }
-  return {W, det, embGlobal: embCars/cars};
+  return {W, embGlobal: embCars/cars};
 }
 
 function stack(o, label, sub){
@@ -497,11 +458,11 @@ function renderOutlook(){
     const r = outlook(y, cu), o = r.W, tot = o.hi+o.hc+o.ei+o.ec, emb = o.ei+o.ec;
     return stack(o, y, Math.round(tot) + "M calipers");
   }).join("");
-  let th = "<thead><tr><th>Year</th><th>EV share of new cars</th><th>EMB share of new cars</th><th>Chinese share of EMB</th><th>…of which outside China</th><th>Chinese share of all calipers</th></tr></thead><tbody>";
+  let th = "<thead><tr><th>Year</th><th>EV share of new cars</th><th>EMB share of new cars</th><th>Chinese share of EMB</th><th>Chinese share of all calipers</th></tr></thead><tbody>";
   for (const y of YEARS){
     const r = outlook(y, cu), o = r.W, tot = o.hi+o.hc+o.ei+o.ec, emb = o.ei+o.ec;
     const evg = REG.reduce((a,reg) => a + CARS[reg]*ost[y].ev[reg], 0) / REG.reduce((a,reg) => a + CARS[reg], 0);
-    th += `<tr${y===oyear?' style="font-weight:700"':''}><td>${y}</td><td>${pct(evg)}</td><td>${pct(r.embGlobal)}</td><td>${emb>0?pct(o.ec/emb):"–"}</td><td>${(() => { const oe = OUTSIDE.reduce((a,x) => a + r.det[x].emb, 0), oc = OUTSIDE.reduce((a,x) => a + r.det[x].emb*r.det[x].ecn, 0); return oe>0 ? pct(oc/oe) : "–"; })()}</td><td>${pct((o.hc+o.ec)/tot)}</td></tr>`;
+    th += `<tr${y===oyear?' style="font-weight:700"':''}><td>${y}</td><td>${pct(evg)}</td><td>${pct(r.embGlobal)}</td><td>${emb>0?pct(o.ec/emb):"–"}</td><td>${pct((o.hc+o.ec)/tot)}</td></tr>`;
   }
   document.getElementById("o-table").innerHTML = th + "</tbody>";
   // controls
@@ -511,12 +472,7 @@ function renderOutlook(){
   setv("o-embcn", s.embCn*100, (s.embCn*100).toFixed(1).replace(/\.0$/,"")+"%");
   setv("o-embex", s.embEx*100, (s.embEx*100).toFixed(1).replace(/\.0$/,"")+"%");
   setv("o-cncn", s.cnCn*100, Math.round(s.cnCn*100)+"%");
-  setv("o-buy", s.buy*100, Math.round(s.buy*100)+"%");
-  for (const reg of OUTSIDE){ const id = "o-brand-" + reg.replace(/\W+/g,"-"); document.getElementById(id).value = Math.round(s.brand[reg]*100); document.getElementById(id+"-o").textContent = Math.round(s.brand[reg]*100)+"%"; }
-  const od = outlook(oyear, compute({...st})).det;
-  const outEmb = OUTSIDE.reduce((a,r) => a + od[r].emb, 0), outCn = OUTSIDE.reduce((a,r) => a + od[r].emb*od[r].ecn, 0);
-  document.getElementById("o-derived").innerHTML = `<b>Result, ${oyear}:</b> Chinese suppliers’ share of EMB outside China = <b>${outEmb>0?pct(outCn/outEmb):"–"}</b> (` +
-    OUTSIDE.map(r => `${r} ${pct(od[r].ecn)}`).join(" · ") + `).`;
+  setv("o-cnex", s.cnEx*100, Math.round(s.cnEx*100)+"%");
   const cnEff = Math.min(s.embCn, s.ev["China"]);
   const ofEv = s.ev["China"] > 0 ? cnEff / s.ev["China"] : 0;
   const anchorTxt = {"2026":"Anchor: EMB <1% of new cars in China in 2026 (Donghai Securities).", "2030":"Anchor: EMB ≈15% of new cars in China by 2030 (Donghai Securities forecast).", "2036":"No published anchor for 2036: assumption."}[oyear];
@@ -537,15 +493,7 @@ for (const reg of REG){
 }
 document.querySelectorAll("[data-year]").forEach(b => b.addEventListener("click", () => { oyear = b.dataset.year; renderOutlook(); }));
 const bindO = (id, key, scale) => document.getElementById(id).addEventListener("input", e => { ost[oyear][key] = e.target.value/scale; renderOutlook(); });
-bindO("o-embcn","embCn",100); bindO("o-embex","embEx",100); bindO("o-cncn","cnCn",100); bindO("o-buy","buy",100);
-const ob = document.getElementById("o-brand");
-for (const reg of OUTSIDE){
-  const id = "o-brand-" + reg.replace(/\W+/g,"-");
-  const row = document.createElement("div"); row.className = "row";
-  row.innerHTML = `<label for="${id}" style="font-size:13px;min-width:110px;font-weight:400">${reg}</label><input id="${id}" type="range" min="0" max="80" step="1"><output id="${id}-o" for="${id}"></output>`;
-  ob.appendChild(row);
-  row.querySelector("input").addEventListener("input", e => { ost[oyear].brand[reg] = e.target.value/100; renderOutlook(); });
-}
+bindO("o-embcn","embCn",100); bindO("o-embex","embEx",100); bindO("o-cncn","cnCn",100); bindO("o-cnex","cnEx",100);
 document.getElementById("o-reset").addEventListener("click", () => { ost = JSON.parse(JSON.stringify(OUT_BASE)); renderOutlook(); });
 
 render();
