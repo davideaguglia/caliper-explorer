@@ -236,8 +236,8 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:
           <p class="hint">Each year keeps its own settings. The bars always show all three years.</p>
         </div>
         <div class="lever">
-          <label for="o-embcn">EMB take-rate among EVs: China <span id="o-embcn-tag"></span></label>
-          <div class="row"><input id="o-embcn" type="range" min="0" max="80" step="0.5"><output id="o-embcn-o" for="o-embcn"></output></div>
+          <label for="o-embcn">EMB share of new cars: China <span id="o-embcn-tag"></span></label>
+          <div class="row"><input id="o-embcn" type="range" min="0" max="70" step="0.5"><output id="o-embcn-o" for="o-embcn"></output></div>
           <p class="hint" id="o-embcn-h"></p>
           <label for="o-embex">EMB take-rate among EVs: outside China <span class="asm">assumption</span></label>
           <div class="row"><input id="o-embex" type="range" min="0" max="60" step="0.5"><output id="o-embex-o" for="o-embex"></output></div>
@@ -451,9 +451,9 @@ document.getElementById("reset").addEventListener("click", () => { st = JSON.par
 // ---------------- Outlook ----------------
 const YEARS = ["2026","2030","2036"];
 const OUT_BASE = {
-  "2026": {ev:{"China":0.60,"Europe":0.28,"North America":0.10,"Japan":0.05,"Korea":0.12,"Rest of World":0.08}, embCn:0.015, embEx:0.005, cnCn:0.80, cnEx:0.15},
-  "2030": {ev:{"China":0.76,"Europe":0.55,"North America":0.18,"Japan":0.15,"Korea":0.30,"Rest of World":0.20}, embCn:0.20,  embEx:0.05,  cnCn:0.80, cnEx:0.20},
-  "2036": {ev:{"China":0.88,"Europe":0.78,"North America":0.30,"Japan":0.30,"Korea":0.50,"Rest of World":0.28}, embCn:0.40,  embEx:0.20,  cnCn:0.80, cnEx:0.25}
+  "2026": {ev:{"China":0.60,"Europe":0.28,"North America":0.10,"Japan":0.05,"Korea":0.12,"Rest of World":0.08}, embCn:0.008, embEx:0.005, cnCn:0.80, cnEx:0.15},
+  "2030": {ev:{"China":0.76,"Europe":0.55,"North America":0.18,"Japan":0.15,"Korea":0.30,"Rest of World":0.20}, embCn:0.15,  embEx:0.05,  cnCn:0.80, cnEx:0.20},
+  "2036": {ev:{"China":0.88,"Europe":0.78,"North America":0.30,"Japan":0.30,"Korea":0.50,"Rest of World":0.28}, embCn:0.35,  embEx:0.20,  cnCn:0.80, cnEx:0.25}
 };
 let ost = JSON.parse(JSON.stringify(OUT_BASE));
 let oyear = "2030";
@@ -464,7 +464,7 @@ function outlook(y, cu){
   const s = ost[y]; const W = {hi:0,hc:0,ei:0,ec:0}; let embCars = 0, cars = 0;
   for (const reg of REG){
     const c = CARS[reg], cpc = cu[reg].units / c, isCn = reg === "China";
-    const e = Math.min(1, s.ev[reg] * (isCn ? s.embCn : s.embEx)) * c;
+    const e = (isCn ? Math.min(s.embCn, s.ev[reg]) : Math.min(1, s.ev[reg] * s.embEx)) * c;
     const hyd = (c - e) * cpc, emb = e * 4, hcn = cu[reg].groups.Chinese, ecn = isCn ? s.cnCn : s.cnEx;
     W.hi += hyd*(1-hcn); W.hc += hyd*hcn; W.ei += emb*(1-ecn); W.ec += emb*ecn;
     embCars += e; cars += c;
@@ -501,10 +501,11 @@ function renderOutlook(){
   setv("o-embex", s.embEx*100, (s.embEx*100).toFixed(1).replace(/\.0$/,"")+"%");
   setv("o-cncn", s.cnCn*100, Math.round(s.cnCn*100)+"%");
   setv("o-cnex", s.cnEx*100, Math.round(s.cnEx*100)+"%");
-  const chinaCarShare = s.ev["China"] * s.embCn;
+  const cnEff = Math.min(s.embCn, s.ev["China"]);
+  const ofEv = s.ev["China"] > 0 ? cnEff / s.ev["China"] : 0;
   const anchorTxt = {"2026":"Anchor: EMB <1% of new cars in China in 2026 (Donghai Securities).", "2030":"Anchor: EMB ≈15% of new cars in China by 2030 (Donghai Securities forecast).", "2036":"No published anchor for 2036: assumption."}[oyear];
   document.getElementById("o-embcn-tag").innerHTML = oyear === "2036" ? '<span class="asm">assumption</span>' : '<span class="src">sourced</span>';
-  document.getElementById("o-embcn-h").textContent = anchorTxt + " Current setting = " + pct(chinaCarShare) + " of all new cars in China.";
+  document.getElementById("o-embcn-h").textContent = anchorTxt + " Current setting = " + pct(ofEv) + " of EVs in China" + (s.embCn > s.ev["China"] ? " (capped at the EV share)." : ".");
   for (const reg of REG){ const id = "o-ev-" + reg.replace(/\W+/g,"-"); document.getElementById(id).value = Math.round(s.ev[reg]*100); document.getElementById(id+"-o").textContent = Math.round(s.ev[reg]*100)+"%"; }
   const evg = REG.reduce((a,reg) => a + CARS[reg]*s.ev[reg], 0) / REG.reduce((a,reg) => a + CARS[reg], 0);
   document.getElementById("o-evglob").innerHTML = "Global EV share in " + oyear + ": <b>" + pct(evg) + "</b> (production-weighted).";
