@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Interactive bottom-up model of OE brake caliper shares by region and supplier owner group. Indicative, author's estimates.">
+<style>html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Caliper Share Explorer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: lever rail on the left, results on the right; stacks to one column on phones.
+   Palette: cool graphite neutrals; group colours match the presentation deck. */
+:root{
+  --bg:#f5f6f7; --panel:#ffffff; --ink:#15191e; --muted:#5b636d; --line:#dde1e5; --soft:#eceff2;
+  --west:#2f6fb2; --jpkr:#4f7c45; --cn:#c13a23; --other:#a9afb6; --focus:#2f6fb2; --chip:#e8ecf0;
+  --display:"Barlow Semi Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12161a; --panel:#1a1f25; --ink:#e9edf1; --muted:#9aa4ae; --line:#2b333b; --soft:#222930;
+  --west:#5b97d6; --jpkr:#7aa86e; --cn:#e2654d; --other:#6c747c; --focus:#7fb2e6; --chip:#252c34; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12161a; --panel:#1a1f25; --ink:#e9edf1; --muted:#9aa4ae; --line:#2b333b; --soft:#222930;
+  --west:#5b97d6; --jpkr:#7aa86e; --cn:#e2654d; --other:#6c747c; --focus:#7fb2e6; --chip:#252c34; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:.01em}
+h1{font-size:clamp(28px,4vw,40px);font-weight:700;line-height:1.05}
+h2{font-size:21px;font-weight:600}
+h3{font-size:16px;font-weight:600}
+p{margin:0}
+.muted{color:var(--muted)}
+.eyebrow{font:600 12px/1.2 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+header{display:flex;flex-direction:column;gap:8px}
+.badge{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;background:var(--chip);border:1px solid var(--line);
+  border-radius:999px;padding:3px 10px;font-size:12.5px;color:var(--muted)}
+.badge b{color:var(--ink)}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.kpi .v{font:600 26px/1.15 var(--display);font-variant-numeric:tabular-nums}
+.kpi .s{font-size:13px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:320px minmax(0,1fr);gap:20px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.levers{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
+.lever{display:flex;flex-direction:column;gap:6px;padding-top:14px;border-top:1px solid var(--line)}
+.lever:first-of-type{border-top:0;padding-top:0}
+.lever label,.lever .lbl{font-weight:600;font-size:14px}
+.lever .hint{font-size:13px;color:var(--muted)}
+.row{display:flex;align-items:center;gap:10px}
+.row output{font:500 13px var(--mono);min-width:44px;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{flex:1;accent-color:var(--west);min-width:0}
+.seg{display:flex;background:var(--soft);border-radius:8px;padding:3px;gap:3px}
+.seg button{flex:1;border:0;background:transparent;color:var(--ink);font:600 13px var(--body);padding:6px 8px;border-radius:6px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--panel);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.reset{border:1px solid var(--line);background:var(--panel);color:var(--ink);font:600 13px var(--body);padding:8px 12px;border-radius:8px;cursor:pointer}
+details summary{cursor:pointer;font-weight:600;font-size:14px}
+details .drums{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+details .drums .row span{font-size:13px;min-width:110px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.bars{display:flex;flex-direction:column;gap:10px}
+.bar{display:grid;grid-template-columns:150px minmax(0,1fr);gap:12px;align-items:center}
+.bar .name{font-size:14px;line-height:1.2}
+.bar .name small{display:block;color:var(--muted);font:12px var(--mono)}
+.track{display:flex;height:30px;border-radius:6px;overflow:hidden;background:var(--soft)}
+.track span{display:flex;align-items:center;justify-content:center;font:600 12.5px var(--body);color:#fff;white-space:nowrap;overflow:hidden;transition:width .35s ease}
+.track span.o{color:#1b1f24}
+.bar.world .name{font-weight:700}
+.bar.world .track{height:36px}
+.delta{font:500 11.5px var(--mono)}
+.up{color:var(--cn)} .down{color:var(--west)}
+.cols{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px}
+.rank{display:flex;flex-direction:column;gap:7px}
+.rk{display:grid;grid-template-columns:150px minmax(0,1fr) 46px;gap:10px;align-items:center;font-size:14px}
+.rk .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rk .nm em{color:var(--muted);font-style:normal;font-size:12px}
+.rk .tr{height:14px;background:var(--soft);border-radius:4px;overflow:hidden}
+.rk .tr div{height:100%;border-radius:4px;transition:width .35s ease}
+.rk .pc{font:500 13px var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+select{font:600 13px var(--body);color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:5px 8px}
+.conf{display:flex;flex-direction:column;gap:8px}
+.meter{display:flex;height:12px;border-radius:999px;overflow:hidden;background:var(--soft)}
+.meter span{height:100%}
+.note{font-size:13px;color:var(--muted)}
+.note b{color:var(--ink)}
+ul.links{margin:0;padding-left:18px;font-size:13.5px;display:flex;flex-direction:column;gap:3px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-weight:600;color:var(--muted);font-size:12.5px}
+footer{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+@media (max-width:960px){.grid{grid-template-columns:minmax(0,1fr)}.levers{position:static}.cols{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:640px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.bar{grid-template-columns:minmax(0,1fr)}.bar .name{display:flex;gap:8px;align-items:baseline}.bar .name small{display:inline}}
+@media (prefers-reduced-motion: reduce){.track span,.rk .tr div{transition:none}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Brake caliper market · OE light vehicles</span>
+    <h1>Caliper Share Explorer</h1>
+    <p class="muted">Bottom-up estimate of who makes the world’s brake calipers: light-vehicle production by OEM and region × calipers per car × each OEM’s sourcing split, grouped by supplier owner. Move the levers to test scenarios.</p>
+    <span class="badge"><b>Indicative</b> · group shares ±10 pp · most sourcing splits are analyst estimates</span>
+  </header>
+
+  <section class="kpis" aria-label="Headline figures">
+    <div class="kpi"><span class="eyebrow">Calipers per year</span><span class="v" id="k-units">–</span><span class="s" id="k-units-s">≈ 92M light vehicles</span></div>
+    <div class="kpi"><span class="eyebrow">Indicative value</span><span class="v" id="k-value">–</span><span class="s">Published estimates: $10–16bn</span></div>
+    <div class="kpi"><span class="eyebrow">Chinese-owned suppliers</span><span class="v" id="k-cn">–</span><span class="s" id="k-cn-s">Range: low–high sourcing</span></div>
+    <div class="kpi"><span class="eyebrow">Largest single supplier</span><span class="v" id="k-top">–</span><span class="s" id="k-top-s">World, by units</span></div>
+  </section>
+
+  <div class="grid">
+    <aside class="panel levers" aria-label="Scenario levers">
+      <div class="row" style="justify-content:space-between"><h2>Scenario levers</h2><button class="reset" id="reset" type="button">Reset to base case</button></div>
+
+      <div class="lever">
+        <span class="lbl" id="lbl-src">Sourcing at uncertain Chinese OEMs</span>
+        <div class="seg" role="group" aria-labelledby="lbl-src">
+          <button type="button" data-src="low">Low</button>
+          <button type="button" data-src="base">Base</button>
+          <button type="button" data-src="high">High</button>
+        </div>
+        <p class="hint">BYD, SAIC, Changan and other Chinese OEMs are the least documented rows. Low moves 20 points of their calipers from Chinese to Western suppliers; High moves 15 points the other way.</p>
+      </div>
+
+      <div class="lever">
+        <label for="eu-share">Chinese brands’ share of European production</label>
+        <div class="row"><input id="eu-share" type="range" min="0" max="25" step="1" value="0"><output id="eu-share-o" for="eu-share">0%</output></div>
+        <p class="hint">Today ≈ 0% (first plants: BYD Szeged, Chery Barcelona). Production moves from incumbent OEMs to Chinese-brand plants in Europe.</p>
+        <label for="eu-local">…of which sourced from Chinese suppliers</label>
+        <div class="row"><input id="eu-local" type="range" min="0" max="100" step="5" value="60"><output id="eu-local-o" for="eu-local">60%</output></div>
+        <p class="hint">Chinese share goes to Bethel, BWI and other Chinese suppliers; the rest to ZF and Aumovio.</p>
+      </div>
+
+      <div class="lever">
+        <span class="lbl" id="lbl-bwi">Classify BWI as</span>
+        <div class="seg" role="group" aria-labelledby="lbl-bwi">
+          <button type="button" data-bwi="owner">Chinese (owner)</button>
+          <button type="button" data-bwi="origin">Western (origin)</button>
+        </div>
+        <p class="hint">BWI is the ex-Delphi brake business, 100% owned by Luxshare since Oct 2026.</p>
+      </div>
+
+      <div class="lever">
+        <span class="lbl" id="lbl-metric">Measure shares by</span>
+        <div class="seg" role="group" aria-labelledby="lbl-metric">
+          <button type="button" data-metric="units">Units</button>
+          <button type="button" data-metric="value">Indicative value</button>
+        </div>
+        <p class="hint">Value uses illustrative prices per caliper (Brembo ≈ €110, typical €22–35).</p>
+      </div>
+
+      <details class="lever">
+        <summary>Rear-drum share by region</summary>
+        <p class="hint" style="margin-top:6px">Cars with rear drums have 2 calipers instead of 4: calipers per car = 4 − 2 × drum share.</p>
+        <div class="drums" id="drums"></div>
+      </details>
+    </aside>
+
+    <main class="panel" style="gap:24px">
+      <section style="display:flex;flex-direction:column;gap:12px">
+        <div class="row" style="justify-content:space-between;flex-wrap:wrap"><h2>Share by supplier owner group</h2>
+          <div class="legend" aria-hidden="true"><span><i style="background:var(--west)"></i>Western</span><span><i style="background:var(--jpkr)"></i>Japanese / Korean</span><span><i style="background:var(--cn)"></i>Chinese</span><span><i style="background:var(--other)"></i>Other local</span></div>
+        </div>
+        <div class="bars" id="bars"></div>
+        <p class="note" id="delta-note">Base case shown. Changes vs base appear under each region.</p>
+      </section>
+
+      <div class="cols">
+        <section style="display:flex;flex-direction:column;gap:12px;min-width:0">
+          <div class="row" style="justify-content:space-between;flex-wrap:wrap"><h2>Top suppliers</h2>
+            <label class="row" style="gap:6px;font-size:13px"><span class="muted">Region</span><select id="rank-region"></select></label></div>
+          <div class="rank" id="rank"></div>
+          <p class="note">“Other Chinese” and “Other local” are groups of smaller suppliers, not single companies.</p>
+        </section>
+        <section class="conf" style="min-width:0">
+          <h2>How much is confirmed</h2>
+          <div class="meter" id="meter" aria-hidden="true"></div>
+          <p class="note" id="conf-text"></p>
+          <h3 style="margin-top:6px">Confirmed supplier links</h3>
+          <ul class="links">
+            <li>Toyota – ADVICS (Toyota-group brake company)</li>
+            <li>Chery – Bethel (≈39–45% of Bethel revenue; Chery holds 14.56%)</li>
+            <li>Geely – Bethel chassis JV · Akebono on Lynk &amp; Co 05+</li>
+            <li>GM – HL Mando (EPB calipers; 7.4M/yr Alabama capacity)</li>
+            <li>Tesla Model Y – Brembo front, HL Mando rear</li>
+            <li>BMW – Aumovio (calipers in a &gt;€1bn deal)</li>
+            <li>Great Wall Haval H6 – APG · Honda owns 61% of Astemo</li>
+          </ul>
+        </section>
+      </div>
+
+      <section style="display:flex;flex-direction:column;gap:10px">
+        <h2>Detail by region</h2>
+        <div class="tablewrap"><table id="tbl"></table></div>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <p><b>Method.</b> 2025 light-vehicle production for ~20 OEM groups (≈85% of the market) plus regional residuals, rounded approximations to be replaced with OICA / S&amp;P data. Calipers per car from regional rear-drum shares. Each OEM-region row is split across suppliers; suppliers are grouped by controlling owner (CBI is counted inside Astemo). OE light vehicles only: no trucks, no aftermarket.</p>
+    <p><b>Cross-checks.</b> ≈335M calipers and ≈€11bn indicative value in the base case, consistent with published $10–16bn market estimates, which were not used as inputs.</p>
+    <p>Sources for confirmed links: ADVICS, The Brake Report, MarkLines, Gasgoo, Bamboo Works, Drive Tesla Canada, Vehicle Dynamics International. Author’s model; the same data as the Excel workbook.</p>
+  </footer>
+</div>
+
+<script>
+const D = {"regions": [{"name": "China", "drum": 0.15, "ref": 31.0}, {"name": "Europe", "drum": 0.08, "ref": 17.0}, {"name": "North America", "drum": 0.03, "ref": 15.0}, {"name": "Japan", "drum": 0.25, "ref": 8.0}, {"name": "Korea", "drum": 0.1, "ref": 4.1}, {"name": "Rest of World", "drum": 0.45, "ref": 17.0}], "suppliers": [{"name": "Aumovio", "group": "Western", "price": 35}, {"name": "ZF", "group": "Western", "price": 35}, {"name": "Brembo", "group": "Western", "price": 110}, {"name": "ADVICS", "group": "Japanese/Korean", "price": 33}, {"name": "Astemo", "group": "Japanese/Korean", "price": 33}, {"name": "Akebono", "group": "Japanese/Korean", "price": 35}, {"name": "HL Mando", "group": "Japanese/Korean", "price": 32}, {"name": "Hyundai Mobis", "group": "Japanese/Korean", "price": 32}, {"name": "BWI", "group": "Chinese", "price": 32}, {"name": "Bethel", "group": "Chinese", "price": 26}, {"name": "APG", "group": "Chinese", "price": 24}, {"name": "Other Chinese", "group": "Chinese", "price": 22}, {"name": "Other local", "group": "Other", "price": 22}], "rows": [{"oem": "Toyota", "region": "Japan", "prod": 3.2, "drum": null, "shares": {"ADVICS": 0.85, "Astemo": 0.1, "Akebono": 0.05}, "conf": "M", "ev": "ADVICS is OE caliper supplier to Toyota/Lexus (ADVICS); split = estimate"}, {"oem": "Toyota", "region": "North America", "prod": 1.4, "drum": null, "shares": {"ADVICS": 0.7, "Akebono": 0.2, "Astemo": 0.1}, "conf": "M", "ev": "ADVICS OH plant; split = estimate"}, {"oem": "Toyota", "region": "China", "prod": 1.5, "drum": null, "shares": {"ADVICS": 0.7, "Astemo": 0.1, "Akebono": 0.05, "Other Chinese": 0.15}, "conf": "L", "ev": "Estimate"}, {"oem": "Toyota", "region": "Europe", "prod": 0.7, "drum": null, "shares": {"ADVICS": 0.6, "Aumovio": 0.2, "ZF": 0.2}, "conf": "L", "ev": "Estimate"}, {"oem": "Toyota", "region": "Rest of World", "prod": 3.2, "drum": null, "shares": {"ADVICS": 0.7, "Astemo": 0.1, "Other local": 0.2}, "conf": "L", "ev": "Estimate"}, {"oem": "VW Group", "region": "Europe", "prod": 4.3, "drum": null, "shares": {"ZF": 0.4, "Aumovio": 0.4, "Brembo": 0.08, "Astemo": 0.12}, "conf": "M", "ev": "Continental OE drum brakes ID.3/ID.4 (Automechanika 2024); TRW/ATE OE per trade sources; split = estimate"}, {"oem": "VW Group", "region": "China", "prod": 3.0, "drum": null, "shares": {"ZF": 0.35, "Aumovio": 0.35, "Brembo": 0.05, "Astemo": 0.05, "Other Chinese": 0.2}, "conf": "L", "ev": "Estimate"}, {"oem": "VW Group", "region": "North America", "prod": 0.6, "drum": null, "shares": {"ZF": 0.5, "Aumovio": 0.4, "Brembo": 0.1}, "conf": "L", "ev": "Estimate"}, {"oem": "VW Group", "region": "Rest of World", "prod": 1.1, "drum": null, "shares": {"ZF": 0.45, "Aumovio": 0.45, "Other local": 0.1}, "conf": "L", "ev": "Estimate"}, {"oem": "Hyundai-Kia", "region": "Korea", "prod": 3.4, "drum": null, "shares": {"HL Mando": 0.7, "Hyundai Mobis": 0.3}, "conf": "M", "ev": "Mando customer base mainly Hyundai/Kia (MarkLines); split = estimate"}, {"oem": "Hyundai-Kia", "region": "North America", "prod": 0.75, "drum": null, "shares": {"HL Mando": 0.75, "Hyundai Mobis": 0.25}, "conf": "M", "ev": "Estimate"}, {"oem": "Hyundai-Kia", "region": "Europe", "prod": 0.65, "drum": null, "shares": {"HL Mando": 0.7, "Hyundai Mobis": 0.3}, "conf": "L", "ev": "Estimate"}, {"oem": "Hyundai-Kia", "region": "China", "prod": 0.3, "drum": null, "shares": {"HL Mando": 0.7, "Hyundai Mobis": 0.15, "Other Chinese": 0.15}, "conf": "L", "ev": "Estimate"}, {"oem": "Hyundai-Kia", "region": "Rest of World", "prod": 2.2, "drum": null, "shares": {"HL Mando": 0.65, "Hyundai Mobis": 0.2, "Other local": 0.15}, "conf": "L", "ev": "Estimate"}, {"oem": "GM", "region": "North America", "prod": 3.2, "drum": null, "shares": {"HL Mando": 0.35, "BWI": 0.3, "ZF": 0.2, "Akebono": 0.1, "Brembo": 0.05}, "conf": "M", "ev": "Mando: GM supplier award, MoC EPB calipers, 7.4M/yr Alabama capacity (The Brake Report); BWI = ex-Delphi; split = estimate"}, {"oem": "GM", "region": "China", "prod": 1.0, "drum": null, "shares": {"BWI": 0.3, "ZF": 0.2, "HL Mando": 0.2, "Aumovio": 0.1, "Other Chinese": 0.2}, "conf": "L", "ev": "Estimate"}, {"oem": "GM", "region": "Korea", "prod": 0.5, "drum": null, "shares": {"HL Mando": 0.8, "BWI": 0.2}, "conf": "L", "ev": "Estimate"}, {"oem": "GM", "region": "Rest of World", "prod": 0.4, "drum": null, "shares": {"ZF": 0.4, "BWI": 0.3, "HL Mando": 0.3}, "conf": "L", "ev": "Estimate"}, {"oem": "Stellantis", "region": "Europe", "prod": 2.4, "drum": null, "shares": {"Astemo": 0.38, "ZF": 0.3, "Aumovio": 0.2, "Brembo": 0.09, "BWI": 0.03}, "conf": "L", "ev": "CBI (ex-Bosch France) historic PSA/Renault supplier; BWI EU plants (Cheb CZ, Krosno PL); estimate"}, {"oem": "Stellantis", "region": "North America", "prod": 1.4, "drum": null, "shares": {"ZF": 0.35, "Aumovio": 0.25, "Akebono": 0.15, "Astemo": 0.15, "Brembo": 0.1}, "conf": "L", "ev": "Estimate"}, {"oem": "Stellantis", "region": "Rest of World", "prod": 1.3, "drum": null, "shares": {"ZF": 0.35, "Astemo": 0.35, "Aumovio": 0.2, "Other local": 0.1}, "conf": "L", "ev": "Estimate"}, {"oem": "Stellantis", "region": "China", "prod": 0.05, "drum": null, "shares": {"ZF": 0.5, "Aumovio": 0.5}, "conf": "L", "ev": "Estimate"}, {"oem": "Ford", "region": "North America", "prod": 2.2, "drum": null, "shares": {"ZF": 0.35, "Aumovio": 0.3, "Akebono": 0.25, "Bethel": 0.05, "Brembo": 0.05}, "conf": "L", "ev": "Estimate; Bethel NA contract customer undisclosed"}, {"oem": "Ford", "region": "Europe", "prod": 0.7, "drum": null, "shares": {"ZF": 0.5, "Aumovio": 0.5}, "conf": "L", "ev": "Estimate"}, {"oem": "Ford", "region": "China", "prod": 0.8, "drum": null, "shares": {"ZF": 0.3, "Aumovio": 0.3, "Other Chinese": 0.4}, "conf": "L", "ev": "Estimate (incl. JMC)"}, {"oem": "Ford", "region": "Rest of World", "prod": 0.5, "drum": null, "shares": {"ZF": 0.5, "Aumovio": 0.4, "Other local": 0.1}, "conf": "L", "ev": "Estimate"}, {"oem": "BYD", "region": "China", "prod": 4.2, "drum": null, "shares": {"Other Chinese": 0.7, "Bethel": 0.1, "APG": 0.1, "Brembo": 0.05, "ZF": 0.05}, "conf": "L", "ev": "Likely in-house (FinDreams) + local suppliers: no public source"}, {"oem": "BYD", "region": "Rest of World", "prod": 0.2, "drum": null, "shares": {"Other Chinese": 0.8, "Bethel": 0.1, "APG": 0.1}, "conf": "L", "ev": "Estimate"}, {"oem": "Honda", "region": "Japan", "prod": 0.7, "drum": null, "shares": {"Astemo": 0.85, "ADVICS": 0.1, "Akebono": 0.05}, "conf": "M", "ev": "Astemo incl. ex-Nissin Kogyo (Honda affiliate); Honda owns 61% of Astemo"}, {"oem": "Honda", "region": "North America", "prod": 1.3, "drum": null, "shares": {"Astemo": 0.7, "Akebono": 0.2, "ADVICS": 0.1}, "conf": "M", "ev": "As above; split = estimate"}, {"oem": "Honda", "region": "China", "prod": 0.8, "drum": null, "shares": {"Astemo": 0.75, "Other Chinese": 0.25}, "conf": "L", "ev": "Estimate"}, {"oem": "Honda", "region": "Rest of World", "prod": 0.8, "drum": null, "shares": {"Astemo": 0.75, "Other local": 0.25}, "conf": "L", "ev": "Estimate"}, {"oem": "Nissan", "region": "Japan", "prod": 0.6, "drum": null, "shares": {"Astemo": 0.6, "Akebono": 0.25, "ADVICS": 0.15}, "conf": "L", "ev": "Astemo incl. ex-Tokico; estimate"}, {"oem": "Nissan", "region": "North America", "prod": 0.9, "drum": null, "shares": {"Astemo": 0.5, "Akebono": 0.4, "ADVICS": 0.1}, "conf": "L", "ev": "Estimate"}, {"oem": "Nissan", "region": "China", "prod": 0.7, "drum": null, "shares": {"Astemo": 0.5, "Akebono": 0.2, "Other Chinese": 0.3}, "conf": "L", "ev": "Estimate"}, {"oem": "Nissan", "region": "Europe", "prod": 0.25, "drum": null, "shares": {"Astemo": 0.5, "Aumovio": 0.25, "ZF": 0.25}, "conf": "L", "ev": "Estimate"}, {"oem": "Nissan", "region": "Rest of World", "prod": 0.65, "drum": null, "shares": {"Astemo": 0.5, "Akebono": 0.2, "Other local": 0.3}, "conf": "L", "ev": "Estimate"}, {"oem": "Suzuki", "region": "Japan", "prod": 0.7, "drum": null, "shares": {"ADVICS": 0.5, "Astemo": 0.5}, "conf": "L", "ev": "Estimate"}, {"oem": "Suzuki", "region": "Rest of World", "prod": 2.6, "drum": 0.7, "shares": {"Other local": 0.55, "HL Mando": 0.2, "Astemo": 0.15, "ADVICS": 0.1}, "conf": "L", "ev": "India: Brakes India / Mando India; most models rear drums; estimate"}, {"oem": "Geely (incl. Volvo)", "region": "China", "prod": 3.2, "drum": null, "shares": {"Bethel": 0.35, "Other Chinese": 0.25, "ZF": 0.15, "Aumovio": 0.15, "Akebono": 0.05, "Brembo": 0.05}, "conf": "M", "ev": "Bethel-Geely chassis JV (Gasgoo); Akebono 4-pot on Lynk & Co 05+ (MarkLines); split = estimate"}, {"oem": "Geely (incl. Volvo)", "region": "Europe", "prod": 0.25, "drum": null, "shares": {"ZF": 0.5, "Aumovio": 0.5}, "conf": "L", "ev": "Volvo; estimate"}, {"oem": "Geely (incl. Volvo)", "region": "North America", "prod": 0.05, "drum": null, "shares": {"ZF": 0.5, "Aumovio": 0.5}, "conf": "L", "ev": "Estimate"}, {"oem": "Geely (incl. Volvo)", "region": "Rest of World", "prod": 0.1, "drum": null, "shares": {"Bethel": 0.5, "Other Chinese": 0.5}, "conf": "L", "ev": "Estimate"}, {"oem": "Chery", "region": "China", "prod": 2.6, "drum": null, "shares": {"Bethel": 0.7, "APG": 0.1, "Other Chinese": 0.2}, "conf": "H", "ev": "Chery = 39-45% of Bethel revenue; holds 14.56% of Bethel (Bamboo Works)"}, {"oem": "Chery", "region": "Rest of World", "prod": 0.2, "drum": null, "shares": {"Bethel": 0.7, "Other Chinese": 0.3}, "conf": "M", "ev": "As above"}, {"oem": "SAIC (own brands, SGMW)", "region": "China", "prod": 2.8, "drum": null, "shares": {"Other Chinese": 0.4, "ZF": 0.2, "Aumovio": 0.2, "APG": 0.1, "Bethel": 0.1}, "conf": "L", "ev": "SAIC-VW / SAIC-GM counted under VW / GM; estimate"}, {"oem": "SAIC (own brands, SGMW)", "region": "Rest of World", "prod": 0.2, "drum": null, "shares": {"Other Chinese": 0.5, "ZF": 0.25, "Aumovio": 0.25}, "conf": "L", "ev": "MG overseas; estimate"}, {"oem": "Changan (own brands)", "region": "China", "prod": 2.1, "drum": null, "shares": {"APG": 0.3, "Bethel": 0.2, "Other Chinese": 0.3, "ZF": 0.1, "Aumovio": 0.1}, "conf": "L", "ev": "No public source; estimate"}, {"oem": "Changan (own brands)", "region": "Rest of World", "prod": 0.1, "drum": null, "shares": {"Other Chinese": 0.6, "APG": 0.2, "Bethel": 0.2}, "conf": "L", "ev": "Estimate"}, {"oem": "BMW", "region": "Europe", "prod": 1.4, "drum": 0.0, "shares": {"Aumovio": 0.45, "ZF": 0.4, "Brembo": 0.15}, "conf": "M", "ev": "Aumovio calipers in >EUR1bn BMW deal (VDI, 2026); split = estimate"}, {"oem": "BMW", "region": "China", "prod": 0.75, "drum": 0.0, "shares": {"Aumovio": 0.4, "ZF": 0.4, "Brembo": 0.1, "Other Chinese": 0.1}, "conf": "L", "ev": "Estimate"}, {"oem": "BMW", "region": "North America", "prod": 0.4, "drum": 0.0, "shares": {"Aumovio": 0.45, "ZF": 0.4, "Brembo": 0.15}, "conf": "L", "ev": "Estimate"}, {"oem": "BMW", "region": "Rest of World", "prod": 0.05, "drum": 0.0, "shares": {"Aumovio": 0.5, "ZF": 0.5}, "conf": "L", "ev": "Estimate"}, {"oem": "Mercedes-Benz", "region": "Europe", "prod": 1.1, "drum": 0.0, "shares": {"Aumovio": 0.45, "ZF": 0.4, "Brembo": 0.15}, "conf": "L", "ev": "Estimate"}, {"oem": "Mercedes-Benz", "region": "China", "prod": 0.65, "drum": 0.0, "shares": {"Aumovio": 0.4, "ZF": 0.4, "Brembo": 0.1, "Other Chinese": 0.1}, "conf": "L", "ev": "Estimate"}, {"oem": "Mercedes-Benz", "region": "North America", "prod": 0.3, "drum": 0.0, "shares": {"Aumovio": 0.45, "ZF": 0.4, "Brembo": 0.15}, "conf": "L", "ev": "Estimate"}, {"oem": "Mercedes-Benz", "region": "Rest of World", "prod": 0.05, "drum": 0.0, "shares": {"Aumovio": 0.5, "ZF": 0.5}, "conf": "L", "ev": "Estimate"}, {"oem": "Renault", "region": "Europe", "prod": 1.4, "drum": null, "shares": {"Astemo": 0.5, "Aumovio": 0.3, "ZF": 0.2}, "conf": "L", "ev": "CBI historic Renault supplier; estimate"}, {"oem": "Renault", "region": "Korea", "prod": 0.1, "drum": null, "shares": {"HL Mando": 0.6, "Astemo": 0.4}, "conf": "L", "ev": "Estimate"}, {"oem": "Renault", "region": "Rest of World", "prod": 0.7, "drum": null, "shares": {"Astemo": 0.4, "Aumovio": 0.2, "ZF": 0.2, "Other local": 0.2}, "conf": "L", "ev": "Estimate"}, {"oem": "Tesla", "region": "China", "prod": 0.85, "drum": 0.0, "shares": {"Brembo": 0.3, "HL Mando": 0.4, "Other Chinese": 0.3}, "conf": "M", "ev": "Model Y: Brembo front, Mando rear (Drive Tesla Canada); China split = estimate"}, {"oem": "Tesla", "region": "North America", "prod": 0.65, "drum": 0.0, "shares": {"Brembo": 0.4, "HL Mando": 0.6}, "conf": "M", "ev": "As above"}, {"oem": "Tesla", "region": "Europe", "prod": 0.2, "drum": 0.0, "shares": {"Brembo": 0.4, "HL Mando": 0.6}, "conf": "M", "ev": "As above"}, {"oem": "Great Wall", "region": "China", "prod": 1.2, "drum": null, "shares": {"APG": 0.4, "Other Chinese": 0.4, "HL Mando": 0.1, "Bethel": 0.1}, "conf": "M", "ev": "APG front calipers Haval H6 (MarkLines, 2019); split = estimate"}, {"oem": "Great Wall", "region": "Rest of World", "prod": 0.1, "drum": null, "shares": {"APG": 0.5, "Other Chinese": 0.5}, "conf": "L", "ev": "Estimate"}, {"oem": "Other Chinese OEMs", "region": "China", "prod": 4.5, "drum": null, "shares": {"Bethel": 0.15, "APG": 0.15, "Other Chinese": 0.5, "ZF": 0.1, "Aumovio": 0.05, "Brembo": 0.05}, "conf": "L", "ev": "GAC, Dongfeng, FAW, Leapmotor, Li Auto, NIO, Xpeng, Seres...; residual to regional total"}, {"oem": "Other European OEMs", "region": "Europe", "prod": 3.65, "drum": null, "shares": {"ZF": 0.35, "Aumovio": 0.3, "Brembo": 0.1, "Astemo": 0.1, "BWI": 0.05, "Other local": 0.1}, "conf": "L", "ev": "JLR, Ford Otosan, AvtoVAZ...; BWI EU plants; residual"}, {"oem": "Other NA OEMs", "region": "North America", "prod": 1.85, "drum": null, "shares": {"ADVICS": 0.3, "Astemo": 0.2, "Akebono": 0.2, "ZF": 0.15, "Aumovio": 0.15}, "conf": "L", "ev": "Subaru, Mazda, Rivian...; residual"}, {"oem": "Other Japanese OEMs", "region": "Japan", "prod": 2.8, "drum": null, "shares": {"ADVICS": 0.4, "Astemo": 0.35, "Akebono": 0.25}, "conf": "L", "ev": "Mazda, Subaru, Mitsubishi, Daihatsu; residual"}, {"oem": "Other Korean OEMs", "region": "Korea", "prod": 0.1, "drum": null, "shares": {"HL Mando": 1.0}, "conf": "L", "ev": "KGM; residual"}, {"oem": "Other RoW OEMs", "region": "Rest of World", "prod": 2.55, "drum": null, "shares": {"Other local": 0.5, "ZF": 0.2, "HL Mando": 0.1, "Astemo": 0.1, "Bethel": 0.05, "Other Chinese": 0.05}, "conf": "L", "ev": "Tata, Mahindra, Proton, Perodua...; residual"}]};
+const GROUPS = ["Western","Japanese/Korean","Chinese","Other"];
+const GCOL = {"Western":"var(--west)","Japanese/Korean":"var(--jpkr)","Chinese":"var(--cn)","Other":"var(--other)"};
+const UNCERTAIN = new Set(["BYD","SAIC (own brands, SGMW)","Changan (own brands)","Other Chinese OEMs"]);
+const SUP = Object.fromEntries(D.suppliers.map(s => [s.name, s]));
+const REG = D.regions.map(r => r.name);
+const BASE = {src:"base", euShare:0, euLocal:0.6, bwi:"owner", metric:"units", drum:Object.fromEntries(D.regions.map(r => [r.name, r.drum]))};
+let st = JSON.parse(JSON.stringify(BASE));
+let rankRegion = "World";
+
+const groupOf = (s, S) => s === "BWI" ? (S.bwi === "owner" ? "Chinese" : "Western") : SUP[s].group;
+
+function adjustShares(shares, delta, S){
+  const cn = Object.entries(shares).filter(([s]) => groupOf(s,S) === "Chinese").reduce((a,[,v]) => a+v, 0);
+  const t = Math.min(1, Math.max(0, cn + delta));
+  const out = {};
+  for (const [s,v] of Object.entries(shares)){
+    const isCn = groupOf(s,S) === "Chinese";
+    out[s] = isCn ? (cn > 0 ? v * t / cn : 0) : (cn < 1 ? v * (1-t) / (1-cn) : 0);
+  }
+  if (cn >= 1 && t < 1){ out["ZF"] = (out["ZF"]||0) + (1-t)/2; out["Aumovio"] = (out["Aumovio"]||0) + (1-t)/2; }
+  return out;
+}
+
+function buildRows(S){
+  const delta = {low:-0.20, base:0, high:0.15}[S.src];
+  const rows = D.rows.map(r => ({...r, shares: (UNCERTAIN.has(r.oem) && delta) ? adjustShares(r.shares, delta, S) : {...r.shares}}));
+  if (S.euShare > 0){
+    const eu = rows.filter(r => r.region === "Europe");
+    const total = eu.reduce((a,r) => a + r.prod, 0);
+    eu.forEach(r => r.prod *= (1 - S.euShare));
+    const L = S.euLocal;
+    rows.push({oem:"Chinese brands (EU plants)", region:"Europe", prod: total * S.euShare, drum:null, conf:"L",
+      shares:{"Bethel":L*0.4, "BWI":L*0.2, "Other Chinese":L*0.4, "ZF":(1-L)/2, "Aumovio":(1-L)/2}});
+  }
+  return rows;
+}
+
+function compute(S){
+  const rows = buildRows(S);
+  const units = {}, value = {};
+  for (const reg of [...REG, "World"]){ units[reg] = {}; value[reg] = {}; for (const s of D.suppliers) { units[reg][s.name] = 0; value[reg][s.name] = 0; } }
+  let confCal = {H:0, M:0, L:0};
+  for (const r of rows){
+    const drum = (r.drum === null || r.drum === undefined) ? S.drum[r.region] : r.drum;
+    const cal = r.prod * (4 - 2 * drum);
+    confCal[r.conf] += cal;
+    for (const [s, sh] of Object.entries(r.shares)){
+      const u = cal * sh;
+      for (const reg of [r.region, "World"]){ units[reg][s] += u; value[reg][s] += u * SUP[s].price; }
+    }
+  }
+  const res = {};
+  for (const reg of [...REG, "World"]){
+    const m = S.metric === "units" ? units[reg] : value[reg];
+    const tot = Object.values(m).reduce((a,v) => a+v, 0);
+    const g = Object.fromEntries(GROUPS.map(x => [x, 0]));
+    for (const [s,v] of Object.entries(m)) g[groupOf(s,S)] += v;
+    for (const x of GROUPS) g[x] = tot ? g[x]/tot : 0;
+    const sup = Object.entries(m).map(([s,v]) => [s, tot ? v/tot : 0]).sort((a,b) => b[1]-a[1]);
+    const ut = Object.values(units[reg]).reduce((a,v) => a+v, 0);
+    const vt = Object.values(value[reg]).reduce((a,v) => a+v, 0);
+    res[reg] = {groups:g, sup, units:ut, value:vt};
+  }
+  res.conf = confCal;
+  return res;
+}
+
+const pct = x => x <= 0 ? "0%" : (x < 0.005 ? "<1%" : Math.round(x*100) + "%");
+const pp = x => (x > 0 ? "+" : "") + (x*100).toFixed(1) + " pp";
+
+function render(){
+  const cur = compute(st);
+  const base = compute({...BASE, bwi:st.bwi, metric:st.metric});
+  const lo = compute({...st, src:"low"}), hi = compute({...st, src:"high"});
+  const W = cur.World;
+
+  document.getElementById("k-units").textContent = Math.round(W.units) + "M";
+  document.getElementById("k-value").textContent = "€" + (W.value/1000).toFixed(1) + "bn";
+  document.getElementById("k-cn").textContent = pct(W.groups.Chinese);
+  document.getElementById("k-cn-s").textContent = "Range " + pct(Math.min(lo.World.groups.Chinese, hi.World.groups.Chinese)) + "–" + pct(Math.max(lo.World.groups.Chinese, hi.World.groups.Chinese)) + " (low–high sourcing), " + (st.metric === "units" ? "by units" : "by value");
+  const top = W.sup.find(([s]) => !s.startsWith("Other"));
+  document.getElementById("k-top").textContent = top[0] + " " + pct(top[1]);
+  document.getElementById("k-top-s").textContent = "World, by " + (st.metric === "units" ? "units" : "indicative value");
+
+  // stacked bars
+  const bars = document.getElementById("bars"); bars.innerHTML = "";
+  let anyDelta = false;
+  for (const reg of ["World", ...REG]){
+    const r = cur[reg], b = base[reg];
+    const el = document.createElement("div"); el.className = "bar" + (reg === "World" ? " world" : "");
+    const vol = st.metric === "units" ? Math.round(r.units) + "M calipers" : "€" + (r.value/1000).toFixed(1) + "bn";
+    const segs = GROUPS.map(g => {
+      const w = r.groups[g]*100;
+      const lab = r.groups[g] >= 0.07 ? pct(r.groups[g]) : "";
+      return `<span class="${g==="Other"?"o":""}" style="width:${w}%;background:${GCOL[g]}" title="${g==="Other"?"Other local":g}: ${pct(r.groups[g])}">${lab}</span>`;
+    }).join("");
+    const dc = r.groups.Chinese - b.groups.Chinese;
+    let dtxt = "";
+    if (Math.abs(dc) >= 0.0005){ anyDelta = true; dtxt = `<span class="delta ${dc>0?"up":"down"}">Chinese ${pp(dc)} vs base</span>`; }
+    el.innerHTML = `<div class="name">${reg}<small>${vol}</small></div><div><div class="track" role="img" aria-label="${reg}: ${GROUPS.map(g => (g==="Other"?"Other local":g)+" "+pct(r.groups[g])).join(", ")}">${segs}</div>${dtxt}</div>`;
+    bars.appendChild(el);
+  }
+  document.getElementById("delta-note").textContent = anyDelta ? "Scenario active: changes in the Chinese share vs the base case are shown under each bar." : "Base case shown. Move a lever to see changes vs base.";
+
+  // ranking
+  const rk = document.getElementById("rank"); rk.innerHTML = "";
+  const list = cur[rankRegion].sup.filter(([,v]) => v > 0.0005).slice(0, 9);
+  const max = list.length ? list[0][1] : 1;
+  for (const [s, v] of list){
+    const g = groupOf(s, st);
+    const d = document.createElement("div"); d.className = "rk";
+    d.innerHTML = `<span class="nm" title="${s}">${s}${s.startsWith("Other")?" <em>(group)</em>":""}</span><div class="tr"><div style="width:${v/max*100}%;background:${GCOL[g]}"></div></div><span class="pc">${pct(v)}</span>`;
+    rk.appendChild(d);
+  }
+
+  // confidence meter (share of calipers by row confidence)
+  const c = cur.conf, ct = c.H + c.M + c.L;
+  document.getElementById("meter").innerHTML = `<span style="width:${c.H/ct*100}%;background:var(--jpkr)"></span><span style="width:${c.M/ct*100}%;background:var(--west)"></span><span style="width:${c.L/ct*100}%;background:var(--other)"></span>`;
+  document.getElementById("conf-text").innerHTML = `<b>${pct(c.H/ct)}</b> of modelled calipers sit in rows where the supplier link and split are documented (H), <b>${pct(c.M/ct)}</b> where the link is confirmed but the split estimated (M), and <b>${pct(c.L/ct)}</b> rely on analyst estimates (L). Group-level results are more robust than single-supplier shares.`;
+
+  // table
+  const t = document.getElementById("tbl");
+  let h = `<thead><tr><th>Region</th><th>Calipers (M)</th><th>Value (€bn)</th>${GROUPS.map(g => `<th>${g==="Other"?"Other local":g}</th>`).join("")}</tr></thead><tbody>`;
+  for (const reg of [...REG, "World"]){
+    const r = cur[reg];
+    h += `<tr${reg==="World"?' style="font-weight:700"':''}><td>${reg}</td><td>${r.units.toFixed(0)}</td><td>${(r.value/1000).toFixed(1)}</td>${GROUPS.map(g => `<td>${pct(r.groups[g])}</td>`).join("")}</tr>`;
+  }
+  t.innerHTML = h + "</tbody>";
+
+  // control states
+  document.querySelectorAll("[data-src]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.src === st.src)));
+  document.querySelectorAll("[data-bwi]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.bwi === st.bwi)));
+  document.querySelectorAll("[data-metric]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.metric === st.metric)));
+  document.getElementById("eu-share").value = Math.round(st.euShare*100);
+  document.getElementById("eu-share-o").textContent = Math.round(st.euShare*100) + "%";
+  document.getElementById("eu-local").value = Math.round(st.euLocal*100);
+  document.getElementById("eu-local-o").textContent = Math.round(st.euLocal*100) + "%";
+  for (const reg of REG){
+    const i = document.getElementById("drum-" + reg.replace(/\W+/g,"-"));
+    i.value = Math.round(st.drum[reg]*100);
+    document.getElementById("drum-" + reg.replace(/\W+/g,"-") + "-o").textContent = Math.round(st.drum[reg]*100) + "%";
+  }
+}
+
+// build drum sliders and region select
+const drums = document.getElementById("drums");
+for (const r of D.regions){
+  const id = "drum-" + r.name.replace(/\W+/g,"-");
+  const row = document.createElement("div"); row.className = "row";
+  row.innerHTML = `<label for="${id}" style="font-size:13px;min-width:110px;font-weight:400">${r.name}</label><input id="${id}" type="range" min="0" max="70" step="1"><output id="${id}-o" for="${id}"></output>`;
+  drums.appendChild(row);
+  row.querySelector("input").addEventListener("input", e => { st.drum[r.name] = e.target.value/100; render(); });
+}
+const sel = document.getElementById("rank-region");
+for (const reg of ["World", ...REG]){ const o = document.createElement("option"); o.value = reg; o.textContent = reg; sel.appendChild(o); }
+sel.addEventListener("change", e => { rankRegion = e.target.value; render(); });
+document.querySelectorAll("[data-src]").forEach(b => b.addEventListener("click", () => { st.src = b.dataset.src; render(); }));
+document.querySelectorAll("[data-bwi]").forEach(b => b.addEventListener("click", () => { st.bwi = b.dataset.bwi; render(); }));
+document.querySelectorAll("[data-metric]").forEach(b => b.addEventListener("click", () => { st.metric = b.dataset.metric; render(); }));
+document.getElementById("eu-share").addEventListener("input", e => { st.euShare = e.target.value/100; render(); });
+document.getElementById("eu-local").addEventListener("input", e => { st.euLocal = e.target.value/100; render(); });
+document.getElementById("reset").addEventListener("click", () => { st = JSON.parse(JSON.stringify(BASE)); render(); });
+render();
+</script>
+
+</body>
+</html>
