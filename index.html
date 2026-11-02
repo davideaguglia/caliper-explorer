@@ -15,16 +15,17 @@
 :root{
   --bg:#f5f6f7; --panel:#ffffff; --ink:#15191e; --muted:#5b636d; --line:#dde1e5; --soft:#eceff2;
   --west:#2f6fb2; --jpkr:#4f7c45; --cn:#c13a23; --other:#a9afb6; --focus:#2f6fb2; --chip:#e8ecf0;
+  --hinc:#b9d0ea; --hcn:#f1c0b5; --einc:#24578f; --ecn:#9e2c18; --segink:#15191e; --ok:#2e7d4f; --okbg:#e3f2e8; --warn:#a4501b; --warnbg:#fbeadf;
   --display:"Barlow Semi Condensed","Arial Narrow",Arial,sans-serif;
   --body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#12161a; --panel:#1a1f25; --ink:#e9edf1; --muted:#9aa4ae; --line:#2b333b; --soft:#222930;
-  --west:#5b97d6; --jpkr:#7aa86e; --cn:#e2654d; --other:#6c747c; --focus:#7fb2e6; --chip:#252c34; color-scheme:dark}}
+  --west:#5b97d6; --jpkr:#7aa86e; --cn:#e2654d; --other:#6c747c; --focus:#7fb2e6; --chip:#252c34; --hinc:#36577c; --hcn:#7c3a2c; --einc:#6aa3df; --ecn:#f07a60; --segink:#eef1f4; --ok:#7ccf9c; --okbg:#1d3328; --warn:#f0a36d; --warnbg:#3a2719; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#12161a; --panel:#1a1f25; --ink:#e9edf1; --muted:#9aa4ae; --line:#2b333b; --soft:#222930;
-  --west:#5b97d6; --jpkr:#7aa86e; --cn:#e2654d; --other:#6c747c; --focus:#7fb2e6; --chip:#252c34; color-scheme:dark}
+  --west:#5b97d6; --jpkr:#7aa86e; --cn:#e2654d; --other:#6c747c; --focus:#7fb2e6; --chip:#252c34; --hinc:#36577c; --hcn:#7c3a2c; --einc:#6aa3df; --ecn:#f07a60; --segink:#eef1f4; --ok:#7ccf9c; --okbg:#1d3328; --warn:#f0a36d; --warnbg:#3a2719; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
@@ -96,7 +97,23 @@ th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white
 th:first-child,td:first-child{text-align:left}
 th{font-weight:600;color:var(--muted);font-size:12.5px}
 footer{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
-@media (max-width:960px){.grid{grid-template-columns:minmax(0,1fr)}.levers{position:static}.cols{grid-template-columns:minmax(0,1fr)}}
+.outlook .head{display:flex;flex-direction:column;gap:6px}
+.src{display:inline-block;font:600 11px/1.6 var(--body);letter-spacing:.04em;text-transform:uppercase;color:var(--einc);border:1px solid var(--line);border-radius:4px;padding:0 5px;margin-left:4px;vertical-align:1px}
+.asm{display:inline-block;font:600 11px/1.6 var(--body);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);border:1px dashed var(--line);border-radius:4px;padding:0 5px;margin-left:4px;vertical-align:1px}
+.ogrid{display:grid;grid-template-columns:320px minmax(0,1fr);gap:24px;align-items:start}
+.olev{display:flex;flex-direction:column;gap:14px;min-width:0}
+.oout{display:flex;flex-direction:column;gap:18px;min-width:0}
+.track.ol span.l{color:var(--segink)}
+.sig{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.sg{border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.sg .v{font:600 22px/1.15 var(--display);font-variant-numeric:tabular-nums}
+.sg .t{font-size:13px;color:var(--muted)}
+.pill{align-self:flex-start;font:600 12px/1.2 var(--body);padding:4px 9px;border-radius:999px}
+.pill.ok{color:var(--ok);background:var(--okbg)}
+.pill.warn{color:var(--warn);background:var(--warnbg)}
+.anch{font-size:13px}
+@media (max-width:960px){.grid{grid-template-columns:minmax(0,1fr)}.levers{position:static}.cols{grid-template-columns:minmax(0,1fr)}.ogrid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:640px){.sig{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:640px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.bar{grid-template-columns:minmax(0,1fr)}.bar .name{display:flex;gap:8px;align-items:baseline}.bar .name small{display:inline}}
 @media (prefers-reduced-motion: reduce){.track span,.rk .tr div{transition:none}}
 </style>
@@ -207,6 +224,76 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:
     </main>
   </div>
 
+  <section class="panel outlook" aria-label="Outlook scenarios">
+    <div class="head">
+      <span class="eyebrow">Outlook · 2026 → 2036</span>
+      <h2>From a geographic split to a technology split</h2>
+      <p class="muted">Scenario explorer, not a forecast. Inputs marked <span class="src">sourced</span> follow published anchors; inputs marked <span class="asm">assumption</span> are the author’s. Vehicle volumes are held at 2025 levels, so the bars show how the mix shifts, not market growth. Hydraulic supplier shares come from today’s model above (including its levers).</p>
+    </div>
+    <div class="ogrid">
+      <div class="olev">
+        <div class="lever">
+          <span class="lbl" id="lbl-year">Year to edit and inspect</span>
+          <div class="seg" role="group" aria-labelledby="lbl-year">
+            <button type="button" data-year="2026">2026</button>
+            <button type="button" data-year="2030">2030</button>
+            <button type="button" data-year="2036">2036</button>
+          </div>
+          <p class="hint">Each year keeps its own settings. The bars always show all three years.</p>
+        </div>
+        <div class="lever">
+          <label for="o-embcn">EMB take-rate among EVs: China <span id="o-embcn-tag"></span></label>
+          <div class="row"><input id="o-embcn" type="range" min="0" max="80" step="0.5"><output id="o-embcn-o" for="o-embcn"></output></div>
+          <p class="hint" id="o-embcn-h"></p>
+          <label for="o-embex">EMB take-rate among EVs: outside China <span class="asm">assumption</span></label>
+          <div class="row"><input id="o-embex" type="range" min="0" max="60" step="0.5"><output id="o-embex-o" for="o-embex"></output></div>
+          <p class="hint">Today only Brembo’s Sensify is in Western series production; ZF’s ≈5M-vehicle order is EMB on the rear axle only.</p>
+        </div>
+        <div class="lever">
+          <label for="o-cncn">Chinese suppliers’ share of EMB: in China <span class="asm">assumption</span></label>
+          <div class="row"><input id="o-cncn" type="range" min="0" max="100" step="5"><output id="o-cncn-o" for="o-cncn"></output></div>
+          <label for="o-cnex">Chinese suppliers’ share of EMB: outside China <span class="asm">assumption</span></label>
+          <div class="row"><input id="o-cnex" type="range" min="0" max="100" step="5"><output id="o-cnex-o" for="o-cnex"></output></div>
+        </div>
+        <div class="lever">
+          <label for="o-price">EMB value per corner (€) <span class="asm">illustrative</span></label>
+          <div class="row"><input id="o-price" type="range" min="20" max="200" step="5"><output id="o-price-o" for="o-price"></output></div>
+          <p class="hint">From ≈ ¥3,500 per car today (Zuobiaoxi) on a falling cost path; a hydraulic caliper averages ≈ €34 in this model.</p>
+        </div>
+        <details class="lever">
+          <summary>EV share of new vehicles by region <span class="src">sourced</span></summary>
+          <p class="hint" style="margin-top:6px">Anchors: IEA Global EV Outlook 2026 (≈28% globally in 2026, ≈50% by 2035), BNEF EVO 2026 (52% by 2035; US 17% in 2030), EV Volumes (China 76% 2030, ≈90% 2035; Europe 55–60% 2030, 80–85% 2035). Japan, Korea and Rest of World are assumptions. Applied to production by region.</p>
+          <div class="drums" id="o-ev"></div>
+          <p class="note" id="o-evglob"></p>
+        </details>
+        <button class="reset" id="o-reset" type="button" style="align-self:flex-start">Reset outlook to anchors</button>
+      </div>
+
+      <div class="oout">
+        <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:10px">
+          <div class="legend" aria-hidden="true"><span><i style="background:var(--hinc)"></i>Hydraulic · incumbents</span><span><i style="background:var(--hcn)"></i>Hydraulic · Chinese</span><span><i style="background:var(--einc)"></i>EMB · incumbents</span><span><i style="background:var(--ecn)"></i>EMB · Chinese</span></div>
+          <div class="seg" role="group" aria-label="Outlook measure" style="min-width:210px">
+            <button type="button" data-ometric="units">Units</button>
+            <button type="button" data-ometric="value">Indicative value</button>
+          </div>
+        </div>
+        <div>
+          <h3 style="margin-bottom:8px">World caliper market by year</h3>
+          <div class="bars" id="o-years"></div>
+        </div>
+        <div>
+          <h3 style="margin-bottom:8px" id="o-split-title">China vs outside China</h3>
+          <div class="bars" id="o-split"></div>
+        </div>
+        <div>
+          <h3 style="margin-bottom:8px">Signposts from the deck</h3>
+          <div class="sig" id="o-sig"></div>
+        </div>
+        <p class="note">“Incumbents” = Western, Japanese and Korean suppliers. Chinese = Chinese-owned (BWI follows the classification lever above).</p>
+      </div>
+    </div>
+  </section>
+
   <footer>
     <p><b>Method.</b> 2025 light-vehicle production for ~20 OEM groups (≈85% of the market) plus regional residuals, rounded approximations to be replaced with OICA / S&amp;P data. Calipers per car from regional rear-drum shares. Each OEM-region row is split across suppliers; suppliers are grouped by controlling owner (CBI is counted inside Astemo). OE light vehicles only: no trucks, no aftermarket.</p>
     <p><b>Cross-checks.</b> ≈335M calipers and ≈€11bn indicative value in the base case, consistent with published $10–16bn market estimates, which were not used as inputs.</p>
@@ -287,6 +374,7 @@ const pct = x => x <= 0 ? "0%" : (x < 0.005 ? "<1%" : Math.round(x*100) + "%");
 const pp = x => (x > 0 ? "+" : "") + (x*100).toFixed(1) + " pp";
 
 function render(){
+  if (typeof renderOutlook === "function") renderOutlook();
   const cur = compute(st);
   const base = compute({...BASE, bwi:st.bwi, metric:st.metric});
   const lo = compute({...st, src:"low"}), hi = compute({...st, src:"high"});
@@ -378,6 +466,112 @@ document.querySelectorAll("[data-metric]").forEach(b => b.addEventListener("clic
 document.getElementById("eu-share").addEventListener("input", e => { st.euShare = e.target.value/100; render(); });
 document.getElementById("eu-local").addEventListener("input", e => { st.euLocal = e.target.value/100; render(); });
 document.getElementById("reset").addEventListener("click", () => { st = JSON.parse(JSON.stringify(BASE)); render(); });
+
+// ---------------- Outlook ----------------
+const YEARS = ["2026","2030","2036"];
+const OUT_BASE = {
+  "2026": {ev:{"China":0.60,"Europe":0.28,"North America":0.10,"Japan":0.05,"Korea":0.12,"Rest of World":0.08}, embCn:0.015, embEx:0.005, cnCn:0.80, cnEx:0.15, price:110},
+  "2030": {ev:{"China":0.76,"Europe":0.55,"North America":0.18,"Japan":0.15,"Korea":0.30,"Rest of World":0.20}, embCn:0.20,  embEx:0.05,  cnCn:0.80, cnEx:0.20, price:65},
+  "2036": {ev:{"China":0.88,"Europe":0.78,"North America":0.30,"Japan":0.30,"Korea":0.50,"Rest of World":0.28}, embCn:0.40,  embEx:0.20,  cnCn:0.80, cnEx:0.25, price:50}
+};
+let ost = JSON.parse(JSON.stringify(OUT_BASE));
+let oyear = "2030", ometric = "units";
+const CARS = {}; for (const r of D.rows) CARS[r.region] = (CARS[r.region]||0) + r.prod;
+
+function outlook(y, cu, cv){
+  // cu: compute(..units), cv: compute(..value) for today's hydraulic structure
+  const s = ost[y]; const out = {World:{hi:0,hc:0,ei:0,ec:0,u:0}, China:{hi:0,hc:0,ei:0,ec:0,u:0}, Outside:{hi:0,hc:0,ei:0,ec:0,u:0}, emb:{}, embCars:0, cars:0, hydEuNa:{cn:0,tot:0}};
+  const V = {World:{hi:0,hc:0,ei:0,ec:0}, China:{hi:0,hc:0,ei:0,ec:0}, Outside:{hi:0,hc:0,ei:0,ec:0}};
+  for (const reg of REG){
+    const cars = CARS[reg], cpc = cu[reg].units / cars;
+    const isCn = reg === "China";
+    const embShare = Math.min(1, s.ev[reg] * (isCn ? s.embCn : s.embEx));
+    const embCars = cars * embShare;
+    const hyd = (cars - embCars) * cpc, emb = embCars * 4;
+    const hcn = cu[reg].groups.Chinese;
+    const price = cu[reg].units ? cu[reg].value / cu[reg].units : 34;
+    const ecnS = isCn ? s.cnCn : s.cnEx;
+    const add = (k, o) => { o.hi += hyd*(1-hcn); o.hc += hyd*hcn; o.ei += emb*(1-ecnS); o.ec += emb*ecnS; };
+    const addV = (o) => { const hcnV = cv[reg].groups.Chinese; o.hi += hyd*price*(1-hcnV); o.hc += hyd*price*hcnV; o.ei += emb*s.price*(1-ecnS); o.ec += emb*s.price*ecnS; };
+    add(reg, out.World); add(reg, isCn ? out.China : out.Outside);
+    addV(V.World); addV(isCn ? V.China : V.Outside);
+    out.emb[reg] = embShare; out.embCars += embCars; out.cars += cars;
+    if (reg === "Europe" || reg === "North America"){ out.hydEuNa.cn += hyd*hcn; out.hydEuNa.tot += hyd; }
+  }
+  out.V = V; out.embGlobal = out.embCars / out.cars;
+  return out;
+}
+
+function stack(o, label, sub){
+  const tot = o.hi + o.hc + o.ei + o.ec;
+  const parts = [["hi","--hinc",true,"Hydraulic · incumbents"],["hc","--hcn",true,"Hydraulic · Chinese"],["ei","--einc",false,"EMB · incumbents"],["ec","--ecn",false,"EMB · Chinese"]];
+  const segs = parts.map(([k,c,light,n]) => { const f = tot ? o[k]/tot : 0; return `<span class="${light?"l":""}" style="width:${f*100}%;background:var(${c})" title="${n}: ${pct(f)}">${f>=0.07?pct(f):""}</span>`; }).join("");
+  const aria = parts.map(([k,,,n]) => `${n} ${pct(tot ? o[k]/tot : 0)}`).join(", ");
+  return `<div class="bar"><div class="name">${label}<small>${sub}</small></div><div class="track ol" role="img" aria-label="${label}: ${aria}">${segs}</div></div>`;
+}
+
+function renderOutlook(){
+  const cu = compute({...st, metric:"units"}), cv = compute({...st, metric:"value"});
+  const res = Object.fromEntries(YEARS.map(y => [y, outlook(y, cu, cv)]));
+  const pick = (r, area) => ometric === "units" ? r[area] : r.V[area];
+  // years
+  document.getElementById("o-years").innerHTML = YEARS.map(y => {
+    const r = res[y], o = pick(r,"World"); const tot = o.hi+o.hc+o.ei+o.ec;
+    const sub = (ometric==="units" ? Math.round(tot)+"M calipers" : "€"+(tot/1000).toFixed(1)+"bn") + " · EMB " + pct(r.embGlobal) + " of cars";
+    return stack(o, y, sub);
+  }).join("");
+  // split for selected year
+  const r = res[oyear];
+  document.getElementById("o-split-title").textContent = "China vs outside China, " + oyear;
+  document.getElementById("o-split").innerHTML = [["China","China"],["Outside","Outside China"]].map(([k,n]) => {
+    const o = pick(r,k); const tot = o.hi+o.hc+o.ei+o.ec;
+    return stack(o, n, ometric==="units" ? Math.round(tot)+"M calipers" : "€"+(tot/1000).toFixed(1)+"bn");
+  }).join("");
+  // signposts
+  const r30 = res["2030"], r36 = res["2036"];
+  const cn30 = r30.emb["China"], g30 = r30.embGlobal;
+  const e36 = r36.World, cnEmb36 = (e36.ec)/(e36.ei+e36.ec || 1);
+  const hydEuNa = r30.hydEuNa.cn / r30.hydEuNa.tot;
+  const sig = [
+    ["EMB in China, 2030", pct(cn30), "Below 5% would mean EMB stalls: no second world.", cn30 >= 0.05, "Holds", "Challenged: EMB stalls"],
+    ["EMB worldwide, 2030", pct(g30), "Below 15% of global production keeps the two-world picture.", g30 < 0.15, "Holds: two worlds", "Challenged: EMB going mainstream"],
+    ["Chinese share of EMB worldwide, 2036", pct(cnEmb36), "Below 50% would mean the West leads EMB.", cnEmb36 >= 0.5, "Holds: China sets the pace", "Challenged: West leads EMB"],
+    ["Chinese share of hydraulic calipers, Europe + North America", pct(hydEuNa), "Above 10% would mean China crosses into hydraulics.", hydEuNa <= 0.10, "Holds: incumbent-led", "Challenged: China crosses into hydraulics"],
+  ];
+  document.getElementById("o-sig").innerHTML = sig.map(([t,v,h,ok,a,b]) => `<div class="sg"><span class="t">${t}</span><span class="v">${v}</span><span class="pill ${ok?"ok":"warn"}">${ok?a:b}</span><span class="t">${h}</span></div>`).join("");
+  // controls
+  const s = ost[oyear];
+  document.querySelectorAll("[data-year]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.year === oyear)));
+  document.querySelectorAll("[data-ometric]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.ometric === ometric)));
+  const setv = (id, v, txt) => { document.getElementById(id).value = v; document.getElementById(id+"-o").textContent = txt; };
+  setv("o-embcn", s.embCn*100, (s.embCn*100).toFixed(1).replace(/\.0$/,"")+"%");
+  setv("o-embex", s.embEx*100, (s.embEx*100).toFixed(1).replace(/\.0$/,"")+"%");
+  setv("o-cncn", s.cnCn*100, Math.round(s.cnCn*100)+"%");
+  setv("o-cnex", s.cnEx*100, Math.round(s.cnEx*100)+"%");
+  setv("o-price", s.price, "€"+s.price);
+  const chinaCarShare = s.ev["China"] * s.embCn;
+  const anchorTxt = {"2026":"Anchor: EMB <1% of new cars in China in 2026 (Donghai Securities).", "2030":"Anchor: EMB ≈15% of new cars in China by 2030 (Donghai Securities forecast).", "2036":"No published anchor for 2036: assumption."}[oyear];
+  document.getElementById("o-embcn-tag").innerHTML = oyear === "2036" ? '<span class="asm">assumption</span>' : '<span class="src">sourced</span>';
+  document.getElementById("o-embcn-h").textContent = anchorTxt + " Current setting = " + pct(chinaCarShare) + " of all new cars in China.";
+  for (const reg of REG){ const id = "o-ev-" + reg.replace(/\W+/g,"-"); document.getElementById(id).value = Math.round(s.ev[reg]*100); document.getElementById(id+"-o").textContent = Math.round(s.ev[reg]*100)+"%"; }
+  const evg = REG.reduce((a,reg) => a + CARS[reg]*s.ev[reg], 0) / REG.reduce((a,reg) => a + CARS[reg], 0);
+  document.getElementById("o-evglob").innerHTML = "Global EV share in " + oyear + ": <b>" + pct(evg) + "</b> (production-weighted).";
+}
+
+const oev = document.getElementById("o-ev");
+for (const reg of REG){
+  const id = "o-ev-" + reg.replace(/\W+/g,"-");
+  const row = document.createElement("div"); row.className = "row";
+  row.innerHTML = `<label for="${id}" style="font-size:13px;min-width:110px;font-weight:400">${reg}</label><input id="${id}" type="range" min="0" max="100" step="1"><output id="${id}-o" for="${id}"></output>`;
+  oev.appendChild(row);
+  row.querySelector("input").addEventListener("input", e => { ost[oyear].ev[reg] = e.target.value/100; renderOutlook(); });
+}
+document.querySelectorAll("[data-year]").forEach(b => b.addEventListener("click", () => { oyear = b.dataset.year; renderOutlook(); }));
+document.querySelectorAll("[data-ometric]").forEach(b => b.addEventListener("click", () => { ometric = b.dataset.ometric; renderOutlook(); }));
+const bindO = (id, key, scale) => document.getElementById(id).addEventListener("input", e => { ost[oyear][key] = e.target.value/scale; renderOutlook(); });
+bindO("o-embcn","embCn",100); bindO("o-embex","embEx",100); bindO("o-cncn","cnCn",100); bindO("o-cnex","cnEx",100); bindO("o-price","price",1);
+document.getElementById("o-reset").addEventListener("click", () => { ost = JSON.parse(JSON.stringify(OUT_BASE)); renderOutlook(); });
+
 render();
 </script>
 
